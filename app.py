@@ -88,4 +88,4 @@ if __name__ == '__main__':
 	start_http_server(9109)
 	while True:
 		REGISTRY.register(GlacierGauge())
-		time.sleep(3600)
+		time.sleep(600)
