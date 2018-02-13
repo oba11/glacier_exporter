@@ -4,6 +4,16 @@ Prometheus exporter for glacier metrics. This exporter is useful to retrieve the
 
 ## Building and running
 
+### Docker
+
+```
+docker run -d -p 9109:9109 -v config.yml:/src/config.yml oba11/glacier-exporter
+
+OR
+
+docker run -d -p 9109:9109 -v config.yml:/config/config.yml -e CONFIG_PATH=/config/config.yml oba11/glacier-exporter
+```
+
 ## Configuration
 
 The configuration is in YAML, an example with common options:
@@ -14,6 +24,23 @@ region: eu-west-1
 buckets:
 	- bucket_one
 	- bucket_two
+```
+
+IAM Policy
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
 ```
 
 Name | Description
