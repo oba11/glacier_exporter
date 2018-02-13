@@ -22,7 +22,7 @@ class GlacierGauge(object):
 	def collect(self):
 		config = self.read_config()
 		for bucket in config['buckets']:	
-			stat = self.s3_glacier_stat(bucket,config['region'])
+			stat = self.s3_glacier_stat(bucket,config['region'],config.get('role_arn',None))
 			for x,y in stat.items():
 				metric = GaugeMetricFamily(x, x, labels=["bucket_name"])
 				metric.add_metric([bucket], y)
@@ -39,14 +39,19 @@ class GlacierGauge(object):
 		return yaml.safe_load(open(configfile))
 
 	@memoize(expiry_time=12*60*60)
-	def s3_glacier_stat(self, bucket, region):
+	def s3_glacier_stat(self, bucket, region, role_arn=None):
 		count = 0
 		size = 0
 		result = {}
 		start_time = time.time()
-		log.info('Starting to query the s3 bucket')
 		kwargs = {'Bucket': bucket, 'MaxKeys': 1000}
-		s3 = boto3.client('s3',region_name=region)
+
+		if role_arn:
+			s3 = self.session(role_arn=role_arn).client('s3',region_name=region)
+		else:
+			s3 = boto3.client('s3',region_name=region)
+
+		log.info('Starting to query the s3 bucket')
 		while True:
 			resp = s3.list_objects_v2(**kwargs)
 			for obj in resp['Contents']:
@@ -64,6 +69,20 @@ class GlacierGauge(object):
 			'request_processing_duration': (time.time() - start_time)
 		})
 		return result
+
+	@memoize(expiry_time=45*60)
+	def session(self, role_arn):
+		log.info('Retrieving session for assumed role')
+		sts = boto3.client('sts')
+		user = sts.get_caller_identity()['Arn'].split('/')[-1]
+		resp = sts.assume_role(
+			RoleArn=role_arn,
+			RoleSessionName=user
+		)
+		return boto3.Session(
+			aws_access_key_id=resp['Credentials']['AccessKeyId'],
+			aws_secret_access_key=resp['Credentials']['SecretAccessKey'],
+			aws_session_token=resp['Credentials']['SessionToken'])
 
 if __name__ == '__main__':
 	start_http_server(9109)
