@@ -1,6 +1,5 @@
 from util import memoize
-from prometheus_client import start_http_server
-from prometheus_client.core import GaugeMetricFamily, REGISTRY
+from prometheus_client import start_http_server, Metric, REGISTRY
 import time
 import boto3
 import yaml,os
@@ -23,16 +22,21 @@ class GlacierGauge(object):
 		config = self.read_config()
 		for bucket in config['buckets']:	
 			stat = self.s3_glacier_stat(bucket,config['region'],config.get('role_arn',None))
+			log.debug(stat)
 			for x,y in stat.items():
-				metric = GaugeMetricFamily(x, x, labels=["bucket_name"])
-				metric.add_metric([bucket], y)
-				yield metric
+				metric = Metric(x, x, 'gauge')
+				metric.add_sample(x, value=y, labels={'bucket_name': bucket})
+				if metric.samples:
+					yield metric
+				else:
+					pass
 
 	def read_config(self):
 		configfile = os.path.join(os.path.dirname(__file__), 'config.yaml')
 		if os.getenv('CONFIG_PATH'):
 			configfile = os.getenv('CONFIG_PATH')
-			print(os.path.exists(configfile))
+			log.info(os.path.exists(configfile))
+			log.debug(configfile)
 		if not (os.path.exists(configfile) and os.stat(configfile).st_size > 0):
 			log.error('cannot read config file: {}'.format(configfile))
 			sys.exit(1)
@@ -49,6 +53,7 @@ class GlacierGauge(object):
 		if role_arn:
 			s3 = self.session(role_arn=role_arn).client('s3',region_name=region)
 		else:
+			log.info('Using client credentials')
 			s3 = boto3.client('s3',region_name=region)
 
 		log.info('Starting to query the s3 bucket')
@@ -58,6 +63,10 @@ class GlacierGauge(object):
 				if obj['StorageClass'] == 'GLACIER':
 					size += obj['Size']
 					count += 1
+					log.debug(obj)
+					log.debug('Count: {}, Size: {}'.format(count,size))
+				else:
+					continue
 			if resp.get('NextContinuationToken'):
 				kwargs['ContinuationToken'] = resp['NextContinuationToken']
 			else:
@@ -86,6 +95,6 @@ class GlacierGauge(object):
 
 if __name__ == '__main__':
 	start_http_server(9109)
+	REGISTRY.register(GlacierGauge())
 	while True:
-		REGISTRY.register(GlacierGauge())
-		time.sleep(600)
+		time.sleep(5)
