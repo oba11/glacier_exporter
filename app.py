@@ -32,7 +32,7 @@ class GlacierGauge(object):
 					pass
 
 	def read_config(self):
-		configfile = os.path.join(os.path.dirname(__file__), 'config.yaml')
+		configfile = os.path.join(os.path.dirname(__file__), 'config.yml')
 		if os.getenv('CONFIG_PATH'):
 			configfile = os.getenv('CONFIG_PATH')
 			log.info(os.path.exists(configfile))
