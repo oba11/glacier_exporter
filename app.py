@@ -59,7 +59,8 @@ class GlacierGauge(object):
 		log.info('Starting to query the s3 bucket')
 		while True:
 			resp = s3.list_objects_v2(**kwargs)
-			for obj in resp['Contents']:
+			contents = resp['Contents'] if 'Contents' in resp else []
+			for obj in contents:
 				if obj['StorageClass'] == 'GLACIER':
 					size += obj['Size']
 					count += 1
