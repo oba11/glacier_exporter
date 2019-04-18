@@ -1,3 +1,4 @@
+from collections import Counter
 from util import memoize
 from prometheus_client import start_http_server, Metric, REGISTRY
 import time
@@ -25,11 +26,20 @@ class GlacierGauge(object):
 			log.debug(stat)
 			for x,y in stat.items():
 				metric = Metric(x, x, 'gauge')
-				metric.add_sample(x, value=y, labels={'bucket_name': bucket})
-				if metric.samples:
-					yield metric
+				if isinstance(y, dict):
+					for storage_type, value in y.items():
+						metric.add_sample(x, value=value, labels={'bucket_name': bucket, 'storage_type': storage_type})
+					if metric.samples:
+						yield metric
+					else:
+						pass
 				else:
-					pass
+					metric.add_sample(x, value=y, labels={'bucket_name': bucket})
+					if metric.samples:
+						yield metric
+					else:
+						pass
+
 
 	def read_config(self):
 		configfile = os.path.join(os.path.dirname(__file__), 'config.yml')
@@ -44,9 +54,9 @@ class GlacierGauge(object):
 
 	@memoize(expiry_time=12*60*60)
 	def s3_glacier_stat(self, bucket, region, role_arn=None):
-		count = 0
-		size = 0
 		result = {}
+		result['aws_s3_number_of_objects_count'] = Counter()
+		result['aws_s3_objects_size_bytes'] = Counter()
 		start_time = time.time()
 		kwargs = {'Bucket': bucket, 'MaxKeys': 1000}
 
@@ -56,26 +66,19 @@ class GlacierGauge(object):
 			log.info('Using client credentials')
 			s3 = boto3.client('s3',region_name=region)
 
-		log.info('Starting to query the s3 bucket')
+		log.info('Starting to query the s3 bucket:{}'.format(bucket))
 		while True:
 			resp = s3.list_objects_v2(**kwargs)
 			contents = resp['Contents'] if 'Contents' in resp else []
 			for obj in contents:
-				if obj['StorageClass'] == 'GLACIER':
-					size += obj['Size']
-					count += 1
-					log.debug(obj)
-					log.debug('Count: {}, Size: {}'.format(count,size))
-				else:
-					continue
+				result['aws_s3_number_of_objects_count'][obj['StorageClass']] += 1
+				result['aws_s3_objects_size_bytes'][obj['StorageClass']] += obj['Size']
 			if resp.get('NextContinuationToken'):
 				kwargs['ContinuationToken'] = resp['NextContinuationToken']
 			else:
 				log.info('Completed the querying of the s3 bucket')
 				break
 		result.update({
-			'aws_s3_number_of_glacier_objects': count,
-			'aws_s3_glacier_objects_size_bytes': size,
 			'request_processing_duration': (time.time() - start_time)
 		})
 		return result

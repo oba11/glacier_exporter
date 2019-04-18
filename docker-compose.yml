@@ -1,7 +1,9 @@
 version: '2'
 services:
   app:
-    build: ./
+    build: .
+    volumes:
+    - .:/src
     ports:
      - "9109:9109"
     environment:

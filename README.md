@@ -1,17 +1,17 @@
-# Glacier exporter
+# S3 exporter
 
-Prometheus exporter for glacier metrics. This exporter is useful to retrieve the number of archives in the vault and the size of the vault.
+Prometheus exporter for s3 metrics. This exporter is useful to retrieve the number of archives in the vault and the size of the vault.
 
 ## Building and running
 
 ### Docker
 
 ```
-docker run -d -p 9109:9109 -v config.yml:/src/config.yml oba11/glacier-exporter
+docker run -d -p 9109:9109 -v config.yml:/src/config.yml oba11/s3-exporter
 
 OR
 
-docker run -d -p 9109:9109 -v config.yml:/config/config.yml -e CONFIG_PATH=/config/config.yml oba11/glacier-exporter
+docker run -d -p 9109:9109 -v config.yml:/config/config.yml -e CONFIG_PATH=/config/config.yml oba11/s3-exporter
 ```
 
 ## Configuration
@@ -55,6 +55,6 @@ List of metrics exposed by the exporter
 
 Name | Description | Type
 --------|------------|------------
-`aws_s3_number_of_glacier_objects`   |  The number of objects in glacier storage | gauge 
-`aws_s3_glacier_objects_size_bytes`   |  The size of objects in glacier storage | gauge 
-`request_processing_duration`   |  How long it took to retrieve all the data for the bucket | gauge 
+`aws_s3_number_of_objects_count` |  The number of objects in the s3 bucket | gauge 
+`aws_s3_objects_size_bytes`      |  The size of objects in the s3 bucket | gauge 
+`request_processing_duration`    |  How long it took to retrieve all the data for the bucket | gauge 
