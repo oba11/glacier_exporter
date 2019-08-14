@@ -99,6 +99,7 @@ class GlacierGauge(object):
 
 if __name__ == '__main__':
 	start_http_server(9109)
+	log.info('Starting s3-exporter on port :9109')
 	REGISTRY.register(GlacierGauge())
 	while True:
 		time.sleep(5)
