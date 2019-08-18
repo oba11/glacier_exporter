@@ -1,9 +1,8 @@
 version: 2
 jobs:
-  test:
-    docker:
-      # Available from https://hub.docker.com/r/circleci/python/
-      - image: circleci/python:3.7.4
+  build:
+    machine:
+      docker_layer_caching: true
 
     steps:
       - checkout
