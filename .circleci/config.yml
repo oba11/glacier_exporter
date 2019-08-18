@@ -1,10 +1,37 @@
-version: 2
+version: 2.1
+
+executors:
+  default:
+    machine:
+      docker_layer_caching: true
+
 jobs:
   build:
-    docker:
-      # Available from https://hub.docker.com/r/circleci/python/
-      - image: circleci/python:3.7.4
-
+    executor: default
     steps:
       - checkout
       - run: make build
+
+  test:
+    executor: default
+    steps:
+      - checkout
+      - run: make run
+      - run: make flake
+      - run: make lint
+      - run: make stop
+
+workflows:
+  version: 2
+  s3-exporter:
+    jobs:
+    - build:
+        filters:
+          tags:
+            only: /.*/
+    - test:
+        requires:
+        - build
+        filters:
+          tags:
+            only: /.*/
