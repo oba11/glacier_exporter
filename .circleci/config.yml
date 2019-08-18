@@ -1,20 +1,25 @@
-version: 2
-jobs:
-  build:
+version: 2.1
+
+executors:
+  default:
     machine:
       docker_layer_caching: true
+
+jobs:
+  build:
+    executor: default
     steps:
       - checkout
       - run: make build
 
   test:
-    machine:
-      docker_layer_caching: true
+    executor: default
     steps:
       - checkout
       - run: make run
       - run: make flake
       - run: make lint
+      - run: make stop
 
 workflows:
   version: 2
