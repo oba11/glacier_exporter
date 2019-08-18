@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # Available from https://hub.docker.com/r/circleci/python/
+      - image: circleci/python:3.7.4
+
+    steps:
+      - checkout
+      - run: make build
