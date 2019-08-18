@@ -1,0 +1,9 @@
+version: 1
+update_configs:
+  # for python package updates
+  - package_manager: "python"
+    directory: "/"
+    update_schedule: "live"
+  - package_manager: "docker"
+    directory: "/"
+    update_schedule: "weekly"

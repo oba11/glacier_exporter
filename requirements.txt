@@ -1,4 +1,4 @@
-boto3
-prometheus_client
-decorator
-pyyaml
+boto3==1.9.210
+prometheus_client==0.7.1
+decorator==4.4.0
+pyyaml==5.1.2
