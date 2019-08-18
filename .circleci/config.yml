@@ -3,9 +3,30 @@ jobs:
   build:
     machine:
       docker_layer_caching: true
+    steps:
+      - checkout
+      - run: make build
 
+  test:
+    machine:
+      docker_layer_caching: true
     steps:
       - checkout
       - run: make run
       - run: make flake
       - run: make lint
+
+workflows:
+  version: 2
+  s3-exporter:
+    jobs:
+    - build:
+        filters:
+          tags:
+            only: /.*/
+    - test:
+        requires:
+        - build
+        filters:
+          tags:
+            only: /.*/
