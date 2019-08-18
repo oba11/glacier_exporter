@@ -1,0 +1,35 @@
+[MASTER]
+# Generate rc file with pylint --generate-rcfile > /tmp/pylintrc
+# Profiled execution.
+profile=no
+
+[MESSAGES CONTROL]
+disable=missing-docstring,
+        logging-format-interpolation,
+        logging-fstring-interpolation
+
+[BASIC]
+# Good variable names which should always be accepted, separated by a comma.
+good-names=_, i, log, loop, kwargs, x,y
+
+[VARIABLES]
+ignored-argument-names=_.*|^ignored_|context|kwargs
+
+# Tells whether we should check for unused import in __init__ files.
+init-import=no
+
+[SIMILARITIES]
+# Ignore imports when computing similarities.
+ignore-imports=yes
+
+# Minimum lines number of a similarity.
+min-similarity-lines=6
+
+[LOGGING]
+# Format style used to check logging format string. `old` means using %
+# formatting, while `new` is for `{}` formatting.
+logging-format-style=new
+
+[DESIGN]
+# Maximum number of branch for function / method body.
+max-branches=15

@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/oba11/s3-exporter.svg?style=svg)](https://circleci.com/gh/oba11/s3-exporter)
+
 # S3 exporter
 
 Prometheus exporter for s3 metrics. This exporter is useful to retrieve the number of archives in the vault and the size of the vault.
