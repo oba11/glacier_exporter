@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/oba11/s3-exporter.svg?style=svg)](https://circleci.com/gh/oba11/s3-exporter)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=oba11/s3-exporter)](https://dependabot.com)
 
 # S3 exporter
 
