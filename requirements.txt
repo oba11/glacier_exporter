@@ -1,4 +1,4 @@
-boto3==1.9.251
+boto3==1.9.253
 prometheus_client==0.7.1
 decorator==4.4.0
 pyyaml==5.1.2
