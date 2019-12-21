@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Docker Login
+      run: docker login docker.pkg.github.com -u oba11 -p $GITHUB_TOKEN
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Docker Build
+      run: docker build --tag docker.pkg.github.com/oba11/s3-exporter/app:latest .
+    - name: Docker Publish
+      run: docker push docker.pkg.github.com/oba11/s3-exporter/app:latest
