@@ -1,4 +1,4 @@
-FROM python:3.8.3-alpine
+FROM python:3.9.5-alpine
 
 ARG dev_req="-r /tmp/requirements-dev.txt"
 
